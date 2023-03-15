@@ -27,7 +27,12 @@ public class BankCustomerImpl implements BankCustomerService {
 
     @Override
     public Optional<BankCustomer> findByDocumentId(String dni) {
-        return Optional.ofNullable(bankCustomerRepository.findBankCustomerByDni(dni));
+        BankCustomer document = bankCustomerRepository.findBankCustomerByDni(dni);
+        if (!ObjectUtils.isEmpty(document)){
+            return Optional.ofNullable(bankCustomerRepository.findBankCustomerByDni(dni));
+        } else {
+            throw new RuntimeException("El numero de documento ingresado no existe en la relación de clientes");
+        }
     }
 
     @Override

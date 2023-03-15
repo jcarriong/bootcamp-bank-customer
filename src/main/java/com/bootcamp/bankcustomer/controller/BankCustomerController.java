@@ -36,9 +36,23 @@ public class BankCustomerController {
     }
 
     @GetMapping("/findByDocumentId/{dni}")
-    public Optional<BankCustomer> findByDocumentId(@PathVariable("dni") String dni) {
+    public ResponseEntity<GlobalResponse> findByDocumentId(@PathVariable("dni") String dni) {
         log.info("bank customer consulted by DNI " + dni);
-        return bankCustomerService.findByDocumentId(dni);
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GlobalResponse.builder()
+                            .data(bankCustomerService.findByDocumentId(dni)
+                                    .get()).message("Consulta con exito")
+                            .build());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(GlobalResponse.builder()
+                            .data(GeneralException.builder()
+                                    .message(e.getMessage())
+                                    .build())
+                            .build());
+        }
     }
 
     @PostMapping("/save")
