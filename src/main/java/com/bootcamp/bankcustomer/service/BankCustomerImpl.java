@@ -43,6 +43,25 @@ public class BankCustomerImpl implements BankCustomerService {
     }
 
     @Override
+    public void updateByDni(BankCustomer bankCustomer, String dni) {
+        BankCustomer currentBankCustomer = bankCustomerRepository.findBankCustomerByDni(dni);
+
+        if (ObjectUtils.isEmpty(currentBankCustomer)) {
+            throw new RuntimeException("No se encontró el cliente en el registro");
+
+        } else {
+            currentBankCustomer.setFirstName(bankCustomer.getFirstName());
+            currentBankCustomer.setLastName(bankCustomer.getLastName());
+            currentBankCustomer.setEmail(bankCustomer.getEmail());
+            currentBankCustomer.setUsername(bankCustomer.getUsername());
+            currentBankCustomer.setAddress(bankCustomer.getAddress());
+
+            bankCustomerRepository.save(currentBankCustomer);
+
+        }
+    }
+
+    @Override
     public void deleteById(String id) {
         bankCustomerRepository.deleteById(id);
     }

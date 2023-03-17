@@ -75,10 +75,18 @@ public class BankCustomerController {
         }
     }
 
+    @PutMapping("/updateByDni/{dni}")
+    public ResponseEntity<Void> update(@RequestBody BankCustomer bankCustomer,
+                                       @PathVariable("dni") String dni) {
+        log.info("A bank customer was changed");
+        bankCustomerService.updateByDni(bankCustomer, dni);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @DeleteMapping("/deleteById/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable(name = "id") String id) {
         log.info("A bank customer was deleted");
         bankCustomerService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
