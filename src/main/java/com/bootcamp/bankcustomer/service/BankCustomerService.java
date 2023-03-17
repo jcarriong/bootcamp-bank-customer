@@ -13,4 +13,6 @@ public interface BankCustomerService {
     Optional<BankCustomer> findByDocumentId(String dni);
 
     Optional<BankCustomer> save(BankCustomer bankCustomer);
+
+    void deleteById(String id);
 }

@@ -74,4 +74,11 @@ public class BankCustomerController {
                             .build());
         }
     }
+
+    @DeleteMapping("/deleteById/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable(name = "id") String id) {
+        log.info("A bank customer was deleted");
+        bankCustomerService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
 }
