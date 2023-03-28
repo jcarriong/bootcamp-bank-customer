@@ -1,20 +1,19 @@
 package com.bootcamp.bankcustomer.service;
 
 import com.bootcamp.bankcustomer.model.BankCustomer;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface BankCustomerService {
-    List<BankCustomer> findAll();
+    Flux<BankCustomer> findAll();
 
-    Optional<BankCustomer> findById(String id);
+    Mono<BankCustomer> findById(String id);
 
-    Optional<BankCustomer> findByDocumentId(String dni);
+    Mono<BankCustomer> findByDocumentId(String dni);
 
-    Optional<BankCustomer> save(BankCustomer bankCustomer);
+    Mono<BankCustomer> save(BankCustomer bankCustomer);
 
-    void updateByDni(BankCustomer bankCustomer, String dni);
+    /*void updateByDni(BankCustomer bankCustomer, String dni);
 
-    void deleteById(String id);
+    void deleteById(String id);*/
 }

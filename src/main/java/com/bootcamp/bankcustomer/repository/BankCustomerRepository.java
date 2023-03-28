@@ -1,9 +1,10 @@
 package com.bootcamp.bankcustomer.repository;
 
 import com.bootcamp.bankcustomer.model.BankCustomer;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Mono;
 
-public interface BankCustomerRepository extends MongoRepository<BankCustomer, String> {
+public interface BankCustomerRepository extends ReactiveMongoRepository<BankCustomer, String> {
 
-    BankCustomer findBankCustomerByDni(String dni);
+    Mono<BankCustomer> findBankCustomerByDni(String dni);
 }

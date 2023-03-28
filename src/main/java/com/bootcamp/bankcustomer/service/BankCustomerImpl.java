@@ -4,10 +4,8 @@ import com.bootcamp.bankcustomer.model.BankCustomer;
 import com.bootcamp.bankcustomer.repository.BankCustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class BankCustomerImpl implements BankCustomerService {
@@ -16,33 +14,39 @@ public class BankCustomerImpl implements BankCustomerService {
     BankCustomerRepository bankCustomerRepository;
 
     @Override
-    public List<BankCustomer> findAll() {
-        return bankCustomerRepository.findAll();
+    public Flux<BankCustomer> findAll() {
+        return bankCustomerRepository.findAll()
+                .onErrorReturn(new BankCustomer());
+              /*  .stream().filter(bankCustomer -> bankCustomer.getAddress().getDistrict().equalsIgnoreCase("San juan de lurigancho"))*/
+               /* .collect(Collectors.toList());*/
     }
 
     @Override
-    public Optional<BankCustomer> findById(String id) {
+    public Mono<BankCustomer> findById(String id) {
         return bankCustomerRepository.findById(id);
     }
 
     @Override
-    public Optional<BankCustomer> findByDocumentId(String dni) {
-        return Optional.ofNullable(Optional.ofNullable(bankCustomerRepository.findBankCustomerByDni(dni))
-                .orElseThrow(() -> new RuntimeException("El numero de documento ingresado no existe en la relación de clientes")));
+    public Mono<BankCustomer> findByDocumentId(String dni) {
+        return bankCustomerRepository.findBankCustomerByDni(dni)
+                .onErrorReturn(new BankCustomer());
+       /* return bankCustomerRepository.findBankCustomerByDni(dni).onErrorMap(throwable -> new RuntimeException("El numero"));*/
+                /*.orElseThrow(() -> new RuntimeException("El numero de documento ingresado no existe en la relación de clientes")));*/
     }
 
     @Override
-    public Optional<BankCustomer> save(BankCustomer bankCustomer) {
+    public Mono<BankCustomer> save(BankCustomer bankCustomer) {
+        return bankCustomerRepository.save(bankCustomer);
 
-        BankCustomer bankCustomer1 = bankCustomerRepository.findBankCustomerByDni(bankCustomer.getDni());
+        /*BankCustomer bankCustomer1 = bankCustomerRepository.findBankCustomerByDni(bankCustomer.getDni());
 
         if (!ObjectUtils.isEmpty(bankCustomer1)) {
             throw new RuntimeException("No se puede realizar el registro, ya existe un cliente con el número de documento");
         }
-        return Optional.of(bankCustomerRepository.save(bankCustomer));
+        return Optional.of(bankCustomerRepository.save(bankCustomer));*/
     }
 
-    @Override
+    /*@Override
     public void updateByDni(BankCustomer bankCustomer, String dni) {
         BankCustomer currentBankCustomer = bankCustomerRepository.findBankCustomerByDni(dni);
 
@@ -64,5 +68,5 @@ public class BankCustomerImpl implements BankCustomerService {
     @Override
     public void deleteById(String id) {
         bankCustomerRepository.deleteById(id);
-    }
+    }*/
 }
