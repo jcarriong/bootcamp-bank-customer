@@ -31,6 +31,11 @@ public class BankCustomerImpl implements BankCustomerService {
     }
 
     @Override
+    public Mono<BankAccountDto> saveAccount(BankAccountDto bankAccountDto) {
+        return accountRetrofitClient.registerAccount(bankAccountDto);
+    }
+
+    @Override
     public Flux<BankCustomer> findAll() {
         return bankCustomerRepository.findAll()
                 .onErrorReturn(new BankCustomer());

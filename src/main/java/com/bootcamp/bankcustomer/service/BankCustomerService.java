@@ -14,6 +14,8 @@ public interface BankCustomerService {
 
     Flux<List<BankAccountDto>> getAccountsByCustomer(String idCustomer);
 
+    Mono<BankAccountDto> saveAccount(BankAccountDto bankAccountDto);
+
     Flux<BankCustomer> findAll();
 
     Mono<BankCustomer> findById(String id);

@@ -33,6 +33,15 @@ public class BankCustomerController {
         return bankCustomerService.getAccountsByCustomer(idCustomer);
     }
 
+    @PostMapping("/saveAccount")
+    public Mono<ResponseEntity<BankAccountDto>> saveAccount(@RequestBody BankAccountDto bankAccountDto) {
+        log.info("A account was created");
+        /*bankAccountDto.setCreationDatetime(String.valueOf(LocalDateTime.now()));*/
+        return bankCustomerService.saveAccount(bankAccountDto)
+                .map(bc -> new ResponseEntity<>(bc, HttpStatus.CREATED))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.CONFLICT));
+    }
+
     @GetMapping("/findAllCustomers")
     public Flux<BankCustomer> findAll() {
         log.info("All bank customers were consulted");
