@@ -2,10 +2,10 @@ package com.bootcamp.bankcustomer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
+@EnableEurekaClient
 @SpringBootApplication
-@EnableMongoAuditing
 public class BankCustomerApplication {
 
     public static void main(String[] args) {

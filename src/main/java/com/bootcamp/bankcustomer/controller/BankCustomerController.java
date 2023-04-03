@@ -1,6 +1,7 @@
 package com.bootcamp.bankcustomer.controller;
 
 import com.bootcamp.bankcustomer.model.BankCustomer;
+import com.bootcamp.bankcustomer.proxy.beans.bankAccount.BankAccountDto;
 import com.bootcamp.bankcustomer.service.BankCustomerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -20,7 +22,18 @@ public class BankCustomerController {
     @Autowired
     private BankCustomerService bankCustomerService;
 
-    @GetMapping("/findAll")
+
+    /**
+     * Un cliente personal solo puede tener un máximo de una cuenta de ahorro,una cuenta corriente o cuentas a plazo fijo.
+     **/
+
+    @GetMapping("/findAccountsByCustomer/{idCustomer}")
+    public Flux<List<BankAccountDto>> getAccountsByCustomer(@PathVariable("idCustomer") String idCustomer) {
+        log.info("All bank accounts of a client were consulted");
+        return bankCustomerService.getAccountsByCustomer(idCustomer);
+    }
+
+    @GetMapping("/findAllCustomers")
     public Flux<BankCustomer> findAll() {
         log.info("All bank customers were consulted");
 
@@ -29,9 +42,11 @@ public class BankCustomerController {
     }
 
     @GetMapping("/findById/{id}")
-    public Mono<BankCustomer> findById(@PathVariable("id") String id) {
+    public Mono<ResponseEntity<BankCustomer>> findById(@PathVariable("id") String id) {
         log.info("bank customer consulted by id " + id);
-        return bankCustomerService.findById(id);
+        Mono<BankCustomer> bankCustomer = bankCustomerService.findById(id);
+        return bankCustomer.map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
 
     }
 
@@ -41,21 +56,6 @@ public class BankCustomerController {
         return bankCustomerService.findByDocumentId(dni)
                 .map(bc -> new ResponseEntity<>(bc, HttpStatus.OK))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-      /*  try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(GlobalResponse.builder()
-                            .data(bankCustomerService.findByDocumentId(dni)
-                                    .getClass()).message("Consulta con exito")
-                            .build());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(GlobalResponse.builder()
-                            .data(GeneralException.builder()
-                                    .message(e.getMessage())
-                                    .build())
-                            .build());
-        }*/
     }
 
     @PostMapping("/save")
@@ -65,35 +65,23 @@ public class BankCustomerController {
         return bankCustomerService.save(bankCustomer)
                 .map(bc -> new ResponseEntity<>(bc, HttpStatus.CREATED))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.CONFLICT));
-        /*try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(GlobalResponse.builder()
-                            .data(bankCustomerService.save(bankCustomer)
-                                    .get()).message("Registrado con exito")
-                            .build());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(GlobalResponse.builder()
-                            .data(GeneralException.builder()
-                                    .message(e.getMessage())
-                                    .build())
-                            .build());
-        }*/
     }
 
-    /*@PutMapping("/updateByDni/{dni}")
-    public ResponseEntity<Void> update(@RequestBody BankCustomer bankCustomer,
-                                       @PathVariable("dni") String dni) {
+    @PutMapping("/updateCustomerById/{idCustomer}")
+    public Mono<ResponseEntity<BankCustomer>> update(@RequestBody BankCustomer bankCustomer,
+                                                     @PathVariable("customerId") String idCustomer) {
         log.info("A bank customer was changed");
-        bankCustomerService.updateByDni(bankCustomer, dni);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return bankCustomerService.updateCustomer(bankCustomer, idCustomer)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
-    @DeleteMapping("/deleteById/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable(name = "id") String id) {
+    @DeleteMapping("/deleteCustomerById/{idCustomer}")
+    public Mono<ResponseEntity<Void>> deleteCustomerById(@PathVariable(name = "idCustomer") String idCustomer) {
         log.info("A bank customer was deleted");
-        bankCustomerService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }*/
+        return bankCustomerService.deleteCustomerById(idCustomer)
+                .map(bankCustomer -> ResponseEntity.ok().<Void>build())
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+
+    }
 }

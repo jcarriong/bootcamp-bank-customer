@@ -1,4 +1,4 @@
-package com.bootcamp.bankcustomer.model;
+package com.bootcamp.bankcustomer.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

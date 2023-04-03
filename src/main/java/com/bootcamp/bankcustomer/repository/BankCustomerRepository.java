@@ -7,4 +7,5 @@ import reactor.core.publisher.Mono;
 public interface BankCustomerRepository extends ReactiveMongoRepository<BankCustomer, String> {
 
     Mono<BankCustomer> findBankCustomerByDni(String dni);
+
 }
