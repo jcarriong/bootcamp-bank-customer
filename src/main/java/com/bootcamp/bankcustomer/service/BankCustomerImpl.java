@@ -51,8 +51,7 @@ public class BankCustomerImpl implements BankCustomerService {
     public Flux<BankCustomer> findAll() {
         return bankCustomerRepository.findAll()
                 .onErrorReturn(new BankCustomer());
-        /*  .stream().filter(bankCustomer -> bankCustomer.getAddress().getDistrict().equalsIgnoreCase("San juan de lurigancho"))*/
-        /* .collect(Collectors.toList());*/
+        /* .filter(bankCustomer -> bankCustomer.getAddress().getDistrict().equalsIgnoreCase("San juan de lurigancho"))*/
     }
 
     @Override
@@ -66,7 +65,8 @@ public class BankCustomerImpl implements BankCustomerService {
     @Override
     public Mono<BankCustomer> findByDocumentId(String dni) {
         return bankCustomerRepository.findBankCustomerByDni(dni)
-                .onErrorReturn(new BankCustomer());
+                .switchIfEmpty(Mono.error(() ->
+                        new CustomerNotFoundException(dni)));
         /* return bankCustomerRepository.findBankCustomerByDni(dni).onErrorMap(throwable -> new RuntimeException("El numero"));*/
         /*.orElseThrow(() -> new RuntimeException("El numero de documento ingresado no existe en la relación de clientes")));*/
     }
@@ -80,9 +80,7 @@ public class BankCustomerImpl implements BankCustomerService {
         } else {
             return bankCustomerRepository.save(bankCustomer);
         }
-
         /*BankCustomer bankCustomer1 = bankCustomerRepository.findBankCustomerByDni(bankCustomer.getDni());
-
         if (!ObjectUtils.isEmpty(bankCustomer1)) {
             throw new RuntimeException("No se puede realizar el registro, ya existe un cliente con el número de documento");
         }
@@ -105,7 +103,6 @@ public class BankCustomerImpl implements BankCustomerService {
                     currentBankCustomer.setUpdateDatetime(LocalDateTime.now());
                     return bankCustomerRepository.save(currentBankCustomer);
                 });
-
 
     }
 
