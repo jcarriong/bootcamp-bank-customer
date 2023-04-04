@@ -1,6 +1,7 @@
 package com.bootcamp.bankcustomer.controller;
 
 import com.bootcamp.bankcustomer.model.BankCustomer;
+import com.bootcamp.bankcustomer.model.response.CustomerAccountResponse;
 import com.bootcamp.bankcustomer.proxy.beans.bankAccount.BankAccountDto;
 import com.bootcamp.bankcustomer.service.BankCustomerService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -28,7 +28,7 @@ public class BankCustomerController {
      **/
 
     @GetMapping("/findAccountsByCustomer/{idCustomer}")
-    public Flux<List<BankAccountDto>> getAccountsByCustomer(@PathVariable("idCustomer") String idCustomer) {
+    public Flux<CustomerAccountResponse> getAccountsByCustomer(@PathVariable("idCustomer") String idCustomer) {
         log.info("All bank accounts of a client were consulted");
         return bankCustomerService.getAccountsByCustomer(idCustomer);
     }
@@ -73,7 +73,7 @@ public class BankCustomerController {
         bankCustomer.setCreationDatetime(LocalDateTime.now());
         return bankCustomerService.save(bankCustomer)
                 .map(bc -> new ResponseEntity<>(bc, HttpStatus.CREATED))
-                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.CONFLICT));
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/updateCustomerById/{idCustomer}")

@@ -8,4 +8,6 @@ public interface BankCustomerRepository extends ReactiveMongoRepository<BankCust
 
     Mono<BankCustomer> findBankCustomerByDni(String dni);
 
+    Mono<BankCustomer>findBankCustomerByCustomerType(String customerType);
+
 }

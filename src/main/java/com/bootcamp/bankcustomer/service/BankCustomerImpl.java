@@ -1,20 +1,21 @@
 package com.bootcamp.bankcustomer.service;
 
+import com.bootcamp.bankcustomer.exceptions.CustomerNotFoundException;
+import com.bootcamp.bankcustomer.exceptions.CustomerTypeBadRequestException;
 import com.bootcamp.bankcustomer.model.BankCustomer;
+import com.bootcamp.bankcustomer.model.response.CustomerAccountResponse;
 import com.bootcamp.bankcustomer.proxy.AccountRetrofitClient;
 import com.bootcamp.bankcustomer.proxy.beans.bankAccount.BankAccountDto;
 import com.bootcamp.bankcustomer.repository.BankCustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+@Slf4j
 @Service
 public class BankCustomerImpl implements BankCustomerService {
 
@@ -25,8 +26,19 @@ public class BankCustomerImpl implements BankCustomerService {
     AccountRetrofitClient accountRetrofitClient;
 
     @Override
-    public Flux<List<BankAccountDto>> getAccountsByCustomer(String idCustomer) {
-        return accountRetrofitClient.getAccountsByCustomer(idCustomer);
+    public Flux<CustomerAccountResponse> getAccountsByCustomer(String idCustomer) {
+        CustomerAccountResponse customerAccountResponse = new CustomerAccountResponse();
+        return bankCustomerRepository.findById(idCustomer)
+                .flatMapMany(bankCustomer -> {
+                    customerAccountResponse.setCustomer(bankCustomer);
+                    return Flux.just(customerAccountResponse);
+                }).flatMap(response -> accountRetrofitClient.getAccountsByCustomer(idCustomer)
+                        .map(accounts -> {
+                            customerAccountResponse.setBankAccountDtoList(accounts);
+                            return response;
+                        }));
+
+        //return accountRetrofitClient.getAccountsByCustomer(idCustomer);
 
     }
 
@@ -45,7 +57,10 @@ public class BankCustomerImpl implements BankCustomerService {
 
     @Override
     public Mono<BankCustomer> findById(String id) {
-        return bankCustomerRepository.findById(id);
+        Mono<BankCustomer> bankCustomer = bankCustomerRepository.findById(id);
+        return bankCustomerRepository.findById(id)
+                .switchIfEmpty(Mono.error(() ->
+                        new CustomerNotFoundException(id)));
     }
 
     @Override
@@ -58,7 +73,13 @@ public class BankCustomerImpl implements BankCustomerService {
 
     @Override
     public Mono<BankCustomer> save(BankCustomer bankCustomer) {
-        return bankCustomerRepository.save(bankCustomer);
+        if (!(bankCustomer.getCustomerType().equalsIgnoreCase("personal")
+                || bankCustomer.getCustomerType().equalsIgnoreCase("empresarial"))) {
+            log.info("fetch customer: " + bankCustomer.getCustomerType());
+            return Mono.error(() -> new CustomerTypeBadRequestException(bankCustomer.getCustomerType()));
+        } else {
+            return bankCustomerRepository.save(bankCustomer);
+        }
 
         /*BankCustomer bankCustomer1 = bankCustomerRepository.findBankCustomerByDni(bankCustomer.getDni());
 
